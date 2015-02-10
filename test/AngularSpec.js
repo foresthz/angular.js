@@ -3,7 +3,7 @@
 describe('angular', function() {
   var element;
 
-  afterEach(function(){
+  afterEach(function() {
     dealoc(element);
   });
 
@@ -17,7 +17,7 @@ describe('angular', function() {
   });
 
   describe("copy", function() {
-    it("should return same object", function () {
+    it("should return same object", function() {
       var obj = {};
       var arr = [];
       expect(copy({}, obj)).toBe(obj);
@@ -55,6 +55,20 @@ describe('angular', function() {
       expect(copy(re) === re).toBeFalsy();
     });
 
+    it("should copy RegExp with flags", function() {
+      var re = new RegExp('.*', 'gim');
+      expect(copy(re).global).toBe(true);
+      expect(copy(re).ignoreCase).toBe(true);
+      expect(copy(re).multiline).toBe(true);
+    });
+
+    it("should copy RegExp with lastIndex", function() {
+      var re = /a+b+/g;
+      var str = 'ab aabb';
+      expect(re.exec(str)[0]).toEqual('ab');
+      expect(copy(re).exec(str)[0]).toEqual('aabb');
+    });
+
     it("should deeply copy literal RegExp", function() {
       var objWithRegExp = {
         re: /.*/
@@ -62,6 +76,186 @@ describe('angular', function() {
       expect(copy(objWithRegExp).re instanceof RegExp).toBeTruthy();
       expect(copy(objWithRegExp).re.source).toEqual(".*");
       expect(copy(objWithRegExp.re) === objWithRegExp.re).toBeFalsy();
+    });
+
+    it("should copy a Uint8Array with no destination", function() {
+      if (typeof Uint8Array !== 'undefined') {
+        var src = new Uint8Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Uint8Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Uint8ClampedArray with no destination", function() {
+      if (typeof Uint8ClampedArray !== 'undefined') {
+        var src = new Uint8ClampedArray(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Uint8ClampedArray).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Uint16Array with no destination", function() {
+      if (typeof Uint16Array !== 'undefined') {
+        var src = new Uint16Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Uint16Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Uint32Array with no destination", function() {
+      if (typeof Uint32Array !== 'undefined') {
+        var src = new Uint32Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Uint32Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Int8Array with no destination", function() {
+      if (typeof Int8Array !== 'undefined') {
+        var src = new Int8Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Int8Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Int16Array with no destination", function() {
+      if (typeof Int16Array !== 'undefined') {
+        var src = new Int16Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Int16Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Int32Array with no destination", function() {
+      if (typeof Int32Array !== 'undefined') {
+        var src = new Int32Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Int32Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Float32Array with no destination", function() {
+      if (typeof Float32Array !== 'undefined') {
+        var src = new Float32Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Float32Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should copy a Float64Array with no destination", function() {
+      if (typeof Float64Array !== 'undefined') {
+        var src = new Float64Array(2);
+        src[1] = 1;
+        var dst = copy(src);
+        expect(copy(src) instanceof Float64Array).toBeTruthy();
+        expect(dst).toEqual(src);
+        expect(dst).not.toBe(src);
+      }
+    });
+
+    it("should throw an exception if a Uint8Array is the destination", function() {
+      if (typeof Uint8Array !== 'undefined') {
+        var src = new Uint8Array();
+        var dst = new Uint8Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Uint8ClampedArray is the destination", function() {
+      if (typeof Uint8ClampedArray !== 'undefined') {
+        var src = new Uint8ClampedArray();
+        var dst = new Uint8ClampedArray(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Uint16Array is the destination", function() {
+      if (typeof Uint16Array !== 'undefined') {
+        var src = new Uint16Array();
+        var dst = new Uint16Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Uint32Array is the destination", function() {
+      if (typeof Uint32Array !== 'undefined') {
+        var src = new Uint32Array();
+        var dst = new Uint32Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Int8Array is the destination", function() {
+      if (typeof Int8Array !== 'undefined') {
+        var src = new Int8Array();
+        var dst = new Int8Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Int16Array is the destination", function() {
+      if (typeof Int16Array !== 'undefined') {
+        var src = new Int16Array();
+        var dst = new Int16Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Int32Array is the destination", function() {
+      if (typeof Int32Array !== 'undefined') {
+        var src = new Int32Array();
+        var dst = new Int32Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Float32Array is the destination", function() {
+      if (typeof Float32Array !== 'undefined') {
+        var src = new Float32Array();
+        var dst = new Float32Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
+    });
+
+    it("should throw an exception if a Float64Array is the destination", function() {
+      if (typeof Float64Array !== 'undefined') {
+        var src = new Float64Array();
+        var dst = new Float64Array(5);
+        expect(function() { copy(src, dst); })
+          .toThrowMinErr("ng", "cpta", "Can't copy! TypedArray destination cannot be mutated.");
+      }
     });
 
     it("should deeply copy an array into an existing array", function() {
@@ -157,7 +351,7 @@ describe('angular', function() {
       expect(hashKey(dst)).toEqual(h);
     });
 
-    it('should handle circular references when circularRefs is turned on', function () {
+    it('should handle circular references when circularRefs is turned on', function() {
       var a = {b: {a: null}, self: null, selfs: [null, null, [null]]};
       a.b.a = a;
       a.self = a;
@@ -169,6 +363,12 @@ describe('angular', function() {
       expect(aCopy).not.toBe(a);
       expect(aCopy).toBe(aCopy.self);
       expect(aCopy.selfs[2]).not.toBe(a.selfs[2]);
+    });
+
+    it('should clear destination arrays correctly when source is non-array', function() {
+      expect(copy(null, [1,2,3])).toEqual([]);
+      expect(copy(undefined, [1,2,3])).toEqual([]);
+      expect(copy({0: 1, 1: 2}, [1,2,3])).toEqual([1,2]);
     });
   });
 
@@ -228,19 +428,6 @@ describe('angular', function() {
 
       expect(shallowCopy(original, clone)).toBe(clone);
       expect(clone.$some).toBe(original.$some);
-    });
-
-    it('should omit properties from prototype chain', function() {
-      var original, clone = {};
-      function Func() {}
-      Func.prototype.hello = "world";
-
-      original = new Func();
-      original.goodbye = "world";
-
-      expect(shallowCopy(original, clone)).toBe(clone);
-      expect(clone.hello).toBeUndefined();
-      expect(clone.goodbye).toBe("world");
     });
 
     it('should handle arrays', function() {
@@ -355,13 +542,15 @@ describe('angular', function() {
       expect(equals(new Date(0), new Date(1))).toBe(false);
       expect(equals(new Date(0), 0)).toBe(false);
       expect(equals(0, new Date(0))).toBe(false);
+
+      expect(equals(new Date(undefined), new Date(undefined))).toBe(true);
+      expect(equals(new Date(undefined), new Date(0))).toBe(false);
+      expect(equals(new Date(undefined), new Date(null))).toBe(false);
+      expect(equals(new Date(undefined), new Date('wrong'))).toBe(true);
     });
 
     it('should correctly test for keys that are present on Object.prototype', function() {
       /* jshint -W001 */
-      // MS IE8 just doesn't work for this kind of thing, since "for ... in" doesn't return
-      // things like hasOwnProperty even if it is explicitly defined on the actual object!
-      if (msie<=8) return;
       expect(equals({}, {hasOwnProperty: 1})).toBe(false);
       expect(equals({}, {toString: null})).toBe(false);
     });
@@ -380,34 +569,6 @@ describe('angular', function() {
     it('should return false when comparing an object and an array', function() {
       expect(equals({}, [])).toBe(false);
       expect(equals([], {})).toBe(false);
-    });
-  });
-
-  describe('size', function() {
-    it('should return the number of items in an array', function() {
-      expect(size([])).toBe(0);
-      expect(size(['a', 'b', 'c'])).toBe(3);
-    });
-
-    it('should return the number of properties of an object', function() {
-      expect(size({})).toBe(0);
-      expect(size({a:1, b:'a', c:noop})).toBe(3);
-    });
-
-    it('should return the number of own properties of an object', function() {
-      var obj = inherit({protoProp: 'c', protoFn: noop}, {a:1, b:'a', c:noop});
-
-      expect(size(obj)).toBe(5);
-      expect(size(obj, true)).toBe(3);
-    });
-
-    it('should return the string length', function() {
-      expect(size('')).toBe(0);
-      expect(size('abc')).toBe(3);
-    });
-
-    it('should not rely on length property of an object to determine its size', function() {
-      expect(size({length:99})).toBe(1);
     });
   });
 
@@ -450,6 +611,94 @@ describe('angular', function() {
       });
       expect(csp()).toBe(true);
       expect(document.querySelector).toHaveBeenCalledWith('[data-ng-csp]');
+    });
+  });
+
+
+  describe('jq', function() {
+    var element;
+
+    beforeEach(function() {
+      element = document.createElement('html');
+    });
+
+    afterEach(function() {
+      delete jq.name_;
+    });
+
+    it('should return undefined when jq is not set, no jQuery found (the default)', function() {
+      expect(jq()).toBe(undefined);
+    });
+
+    it('should return empty string when jq is enabled manually via [ng-jq] with empty string', function() {
+      element.setAttribute('ng-jq', '');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[ng-jq]') return element;
+      });
+      expect(jq()).toBe('');
+    });
+
+    it('should return empty string when jq is enabled manually via [data-ng-jq] with empty string', function() {
+      element.setAttribute('data-ng-jq', '');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[data-ng-jq]') return element;
+      });
+      expect(jq()).toBe('');
+      expect(document.querySelector).toHaveBeenCalledWith('[data-ng-jq]');
+    });
+
+    it('should return empty string when jq is enabled manually via [x-ng-jq] with empty string', function() {
+      element.setAttribute('x-ng-jq', '');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[x-ng-jq]') return element;
+      });
+      expect(jq()).toBe('');
+      expect(document.querySelector).toHaveBeenCalledWith('[x-ng-jq]');
+    });
+
+    it('should return empty string when jq is enabled manually via [ng:jq] with empty string', function() {
+      element.setAttribute('ng:jq', '');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[ng\\:jq]') return element;
+      });
+      expect(jq()).toBe('');
+      expect(document.querySelector).toHaveBeenCalledWith('[ng\\:jq]');
+    });
+
+    it('should return "jQuery" when jq is enabled manually via [ng-jq] with value "jQuery"', function() {
+      element.setAttribute('ng-jq', 'jQuery');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[ng-jq]') return element;
+      });
+      expect(jq()).toBe('jQuery');
+      expect(document.querySelector).toHaveBeenCalledWith('[ng-jq]');
+    });
+
+    it('should return "jQuery" when jq is enabled manually via [data-ng-jq] with value "jQuery"', function() {
+      element.setAttribute('data-ng-jq', 'jQuery');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[data-ng-jq]') return element;
+      });
+      expect(jq()).toBe('jQuery');
+      expect(document.querySelector).toHaveBeenCalledWith('[data-ng-jq]');
+    });
+
+    it('should return "jQuery" when jq is enabled manually via [x-ng-jq] with value "jQuery"', function() {
+      element.setAttribute('x-ng-jq', 'jQuery');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[x-ng-jq]') return element;
+      });
+      expect(jq()).toBe('jQuery');
+      expect(document.querySelector).toHaveBeenCalledWith('[x-ng-jq]');
+    });
+
+    it('should return "jQuery" when jq is enabled manually via [ng:jq] with value "jQuery"', function() {
+      element.setAttribute('ng:jq', 'jQuery');
+      spyOn(document, 'querySelector').andCallFake(function(selector) {
+        if (selector === '[ng\\:jq]') return element;
+      });
+      expect(jq()).toBe('jQuery');
+      expect(document.querySelector).toHaveBeenCalledWith('[ng\\:jq]');
     });
   });
 
@@ -598,7 +847,7 @@ describe('angular', function() {
       var args,
           log = [];
 
-      (function(){ args = arguments; }('a', 'b', 'c'));
+      (function() { args = arguments; }('a', 'b', 'c'));
 
       forEach(args, function(value, key) { log.push(key + ':' + value); });
       expect(log).toEqual(['0:a', '1:b', '2:c']);
@@ -614,7 +863,7 @@ describe('angular', function() {
 
     it('should handle objects with length property as objects', function() {
       var obj = {
-          'foo' : 'bar',
+          'foo': 'bar',
           'length': 2
         },
         log = [];
@@ -636,12 +885,84 @@ describe('angular', function() {
       forEach(obj, function(value, key) { log.push(key + ':' + value); });
       expect(log).toEqual(['length:2', 'foo:bar']);
     });
-  });
 
 
-  describe('sortedKeys', function() {
-    it('should collect keys from object', function() {
-      expect(sortedKeys({c:0, b:0, a:0})).toEqual(['a', 'b', 'c']);
+    it('should not invoke the iterator for indexed properties which are not present in the collection', function() {
+      var log = [];
+      var collection = [];
+      collection[5] = 'SPARSE';
+      forEach(collection, function(item, index) {
+        log.push(item + index);
+      });
+      expect(log.length).toBe(1);
+      expect(log[0]).toBe('SPARSE5');
+    });
+
+
+    describe('ES spec api compliance', function() {
+
+      function testForEachSpec(expectedSize, collection) {
+        var that = {};
+
+        forEach(collection, function(value, key, collectionArg) {
+          expect(collectionArg).toBe(collection);
+          expect(collectionArg[key]).toBe(value);
+
+          expect(this).toBe(that);
+
+          expectedSize--;
+        }, that);
+
+        expect(expectedSize).toBe(0);
+      }
+
+
+      it('should follow the ES spec when called with array', function() {
+        testForEachSpec(2, [1,2]);
+      });
+
+
+      it('should follow the ES spec when called with arguments', function() {
+        testForEachSpec(2, (function() { return arguments; }(1,2)));
+      });
+
+
+      it('should follow the ES spec when called with string', function() {
+        testForEachSpec(2, '12');
+      });
+
+
+      it('should follow the ES spec when called with jQuery/jqLite', function() {
+        testForEachSpec(2, jqLite("<span>a</span><span>b</span>"));
+      });
+
+
+      it('should follow the ES spec when called with childNodes NodeList', function() {
+        testForEachSpec(2, jqLite("<p><span>a</span><span>b</span></p>")[0].childNodes);
+      });
+
+
+      it('should follow the ES spec when called with getElementsByTagName HTMLCollection', function() {
+        testForEachSpec(2, jqLite("<p><span>a</span><span>b</span></p>")[0].getElementsByTagName("*"));
+      });
+
+
+      it('should follow the ES spec when called with querySelectorAll HTMLCollection', function() {
+        testForEachSpec(2, jqLite("<p><span>a</span><span>b</span></p>")[0].querySelectorAll("*"));
+      });
+
+
+      it('should follow the ES spec when called with JSON', function() {
+        testForEachSpec(2, {a: 1, b: 2});
+      });
+
+
+      it('should follow the ES spec when called with function', function() {
+        function f() {}
+        f.a = 1;
+        f.b = 2;
+        testForEachSpec(2, f);
+      });
     });
   });
 
@@ -654,16 +975,16 @@ describe('angular', function() {
         toEqual('asdf1234asdf');
 
       //don't encode unreserved'
-      expect(encodeUriSegment("-_.!~*'() -_.!~*'()")).
-        toEqual("-_.!~*'()%20-_.!~*'()");
+      expect(encodeUriSegment("-_.!~*'(); -_.!~*'();")).
+        toEqual("-_.!~*'();%20-_.!~*'();");
 
       //don't encode the rest of pchar'
       expect(encodeUriSegment(':@&=+$, :@&=+$,')).
         toEqual(':@&=+$,%20:@&=+$,');
 
-      //encode '/', ';' and ' ''
+      //encode '/' and ' ''
       expect(encodeUriSegment('/; /;')).
-        toEqual('%2F%3B%20%2F%3B');
+        toEqual('%2F;%20%2F;');
     });
   });
 
@@ -685,7 +1006,7 @@ describe('angular', function() {
 
       //encode '&', ';', '=', '+', and '#'
       expect(encodeUriQuery('&;=+# &;=+#')).
-        toEqual('%26%3B%3D%2B%23+%26%3B%3D%2B%23');
+        toEqual('%26;%3D%2B%23+%26;%3D%2B%23');
 
       //encode ' ' as '+'
       expect(encodeUriQuery('  ')).
@@ -712,7 +1033,7 @@ describe('angular', function() {
 
     beforeEach(function() {
       element = {
-        hasAttribute: function (name) {
+        hasAttribute: function(name) {
           return !!element[name];
         },
 
@@ -778,23 +1099,23 @@ describe('angular', function() {
     });
 
 
-    it('should complain if an element has already been bootstrapped', function () {
+    it('should complain if an element has already been bootstrapped', function() {
       var element = jqLite('<div>bootstrap me!</div>');
       angular.bootstrap(element);
 
-      expect(function () {
+      expect(function() {
         angular.bootstrap(element);
       }).toThrowMatching(
-        /\[ng:btstrpd\] App Already Bootstrapped with this Element '<div class="?ng\-scope"?( ng[0-9]+="?[0-9]+"?)?>'/i
+        /\[ng:btstrpd\] App Already Bootstrapped with this Element '&lt;div class="?ng\-scope"?( ng[0-9]+="?[0-9]+"?)?&gt;'/i
       );
 
       dealoc(element);
     });
 
 
-    it('should complain if manually bootstrapping a document whose <html> element has already been bootstrapped', function () {
+    it('should complain if manually bootstrapping a document whose <html> element has already been bootstrapped', function() {
       angular.bootstrap(document.getElementsByTagName('html')[0]);
-      expect(function () {
+      expect(function() {
         angular.bootstrap(document);
       }).toThrowMatching(
         /\[ng:btstrpd\] App Already Bootstrapped with this Element 'document'/i
@@ -824,7 +1145,7 @@ describe('angular', function() {
 
   describe('angular service', function() {
     it('should override services', function() {
-      module(function($provide){
+      module(function($provide) {
         $provide.value('fake', 'old');
         $provide.value('fake', 'new');
       });
@@ -834,7 +1155,7 @@ describe('angular', function() {
     });
 
     it('should inject dependencies specified by $inject and ignore function argument name', function() {
-      expect(angular.injector([function($provide){
+      expect(angular.injector([function($provide) {
         $provide.factory('svc1', function() { return 'svc1'; });
         $provide.factory('svc2', ['svc1', function(s) { return 'svc2-' + s; }]);
       }]).get('svc2')).toEqual('svc2-svc1');
@@ -873,7 +1194,7 @@ describe('angular', function() {
   });
 
 
-  describe('isWindow', function () {
+  describe('isWindow', function() {
     it('should return true for the Window object', function() {
       expect(isWindow(window)).toBe(true);
     });
@@ -911,7 +1232,7 @@ describe('angular', function() {
       var compile = $compile(template);
       var templateClone = template.clone();
 
-      element = compile($rootScope, function(clone){
+      element = compile($rootScope, function(clone) {
         templateClone = clone;
       });
       $rootScope.$digest();
@@ -942,15 +1263,18 @@ describe('angular', function() {
       expect(div.childNodes[0].getAttribute('ngtest:attr')).toBe('bar');
     });
 
-    if (!msie || msie >= 9) {
-      it('should correctly detect node name with "namespace" when xmlns is NOT defined', function() {
-        var div = jqLite('<div xmlns:ngtest="http://angularjs.org/">' +
-                           '<ngtest:foo ngtest:attr="bar"></ng-test>' +
-                         '</div>')[0];
-        expect(nodeName_(div.childNodes[0])).toBe('ngtest:foo');
-        expect(div.childNodes[0].getAttribute('ngtest:attr')).toBe('bar');
-      });
-    }
+    it('should correctly detect node name with "namespace" when xmlns is NOT defined', function() {
+      var div = jqLite('<div xmlns:ngtest="http://angularjs.org/">' +
+                         '<ngtest:foo ngtest:attr="bar"></ng-test>' +
+                       '</div>')[0];
+      expect(nodeName_(div.childNodes[0])).toBe('ngtest:foo');
+      expect(div.childNodes[0].getAttribute('ngtest:attr')).toBe('bar');
+    });
+
+    it('should return undefined for elements without the .nodeName property', function() {
+      //some elements, like SVGElementInstance don't have .nodeName property
+      expect(nodeName_({})).toBeUndefined();
+    });
   });
 
 
@@ -959,7 +1283,7 @@ describe('angular', function() {
       var seen = {};
       var count = 100;
 
-      while(count--) {
+      while (count--) {
         var current = nextUid();
         expect(typeof current).toBe('number');
         expect(seen[current]).toBeFalsy();
@@ -981,7 +1305,7 @@ describe('angular', function() {
   });
 
   describe('bootstrap', function() {
-    it('should bootstrap app', function(){
+    it('should bootstrap app', function() {
       var element = jqLite('<div>{{1+2}}</div>');
       var injector = angular.bootstrap(element);
       expect(injector).toBeDefined();
@@ -1018,6 +1342,26 @@ describe('angular', function() {
         window.name = originalName;
       });
 
+      it('should provide injector for deferred bootstrap', function() {
+        var injector;
+        window.name = 'NG_DEFER_BOOTSTRAP!';
+
+        injector = angular.bootstrap(element);
+        expect(injector).toBeUndefined();
+
+        injector = angular.resumeBootstrap();
+        expect(injector).toBeDefined();
+      });
+
+      it('should resume deferred bootstrap, if defined', function() {
+        var injector;
+        window.name = 'NG_DEFER_BOOTSTRAP!';
+
+        angular.resumeDeferredBootstrap = noop;
+        var spy = spyOn(angular, "resumeDeferredBootstrap");
+        injector = angular.bootstrap(element);
+        expect(spy).toHaveBeenCalled();
+      });
 
       it('should wait for extra modules', function() {
         window.name = 'NG_DEFER_BOOTSTRAP!';
@@ -1077,8 +1421,8 @@ describe('angular', function() {
   });
 
 
-  describe('startingElementHtml', function(){
-    it('should show starting element tag only', function(){
+  describe('startingElementHtml', function() {
+    it('should show starting element tag only', function() {
       expect(startingTag('<ng-abc x="2A"><div>text</div></ng-abc>')).
           toBe('<ng-abc x="2A">');
     });
@@ -1091,7 +1435,7 @@ describe('angular', function() {
     });
   });
 
-  describe('snake_case', function(){
+  describe('snake_case', function() {
     it('should convert to snake_case', function() {
       expect(snake_case('ABC')).toEqual('a_b_c');
       expect(snake_case('alanBobCharles')).toEqual('alan_bob_charles');
@@ -1128,9 +1472,17 @@ describe('angular', function() {
 
     it('should format objects pretty', function() {
       expect(toJson({a: 1, b: 2}, true)).
-          toBeOneOf('{\n  "a": 1,\n  "b": 2\n}', '{\n  "a":1,\n  "b":2\n}');
+          toBe('{\n  "a": 1,\n  "b": 2\n}');
       expect(toJson({a: {b: 2}}, true)).
-          toBeOneOf('{\n  "a": {\n    "b": 2\n  }\n}', '{\n  "a":{\n    "b":2\n  }\n}');
+          toBe('{\n  "a": {\n    "b": 2\n  }\n}');
+      expect(toJson({a: 1, b: 2}, false)).
+          toBe('{"a":1,"b":2}');
+      expect(toJson({a: 1, b: 2}, 0)).
+          toBe('{"a":1,"b":2}');
+      expect(toJson({a: 1, b: 2}, 1)).
+          toBe('{\n "a": 1,\n "b": 2\n}');
+      expect(toJson({a: 1, b: 2}, {})).
+          toBe('{\n  "a": 1,\n  "b": 2\n}');
     });
 
 
@@ -1161,21 +1513,6 @@ describe('angular', function() {
     it('should serialize undefined as undefined', function() {
       expect(toJson(undefined)).toEqual(undefined);
     });
-  });
-
-  describe('msie UA parsing', function() {
-    if (/ Trident\/.*; rv:/.test(window.navigator.userAgent)) {
-      it('should fail when the Trident and the rv versions disagree for IE11+', function() {
-        // When this test fails, we can think about whether we want to use the version from the
-        // Trident token in the UA string or stick with the version from rv: as we currently do.
-        // Refer https://github.com/angular/angular.js/pull/3758#issuecomment-23529245 for the
-        // discussion.
-        var UA = window.navigator.userAgent;
-        var tridentVersion = parseInt((/Trident\/(\d+)/.exec(UA) || [])[1], 10) + 4;
-        var rvVersion = parseInt((/Trident\/.*; rv:(\d+)/.exec(UA) || [])[1], 10);
-        expect(tridentVersion).toBe(rvVersion);
-      });
-    }
   });
 
   describe('isElement', function() {

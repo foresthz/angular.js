@@ -13,7 +13,7 @@
  * Typically, you don't use `ngBind` directly, but instead you use the double curly markup like
  * `{{ expression }}` which is similar but less verbose.
  *
- * It is preferable to use `ngBind` instead of `{{ expression }}` when a template is momentarily
+ * It is preferable to use `ngBind` instead of `{{ expression }}` if a template is momentarily
  * displayed by the browser in its raw state before Angular compiles it. Since `ngBind` is an
  * element attribute, it makes the bindings invisible to the user while the page is loading.
  *
@@ -51,20 +51,21 @@
      </file>
    </example>
  */
-var ngBindDirective = ngDirective({
-  compile: function(templateElement) {
-    templateElement.addClass('ng-binding');
-    return function (scope, element, attr) {
-      element.data('$binding', attr.ngBind);
-      scope.$watch(attr.ngBind, function ngBindWatchAction(value) {
-        // We are purposefully using == here rather than === because we want to
-        // catch when value is "null or undefined"
-        // jshint -W041
-        element.text(value == undefined ? '' : value);
-      });
-    };
-  }
-});
+var ngBindDirective = ['$compile', function($compile) {
+  return {
+    restrict: 'AC',
+    compile: function ngBindCompile(templateElement) {
+      $compile.$$addBindingClass(templateElement);
+      return function ngBindLink(scope, element, attr) {
+        $compile.$$addBindingInfo(element, attr.ngBind);
+        element = element[0];
+        scope.$watch(attr.ngBind, function ngBindWatchAction(value) {
+          element.textContent = value === undefined ? '' : value;
+        });
+      };
+    }
+  };
+}];
 
 
 /**
@@ -89,7 +90,7 @@ var ngBindDirective = ngDirective({
      <file name="index.html">
        <script>
          angular.module('bindExample', [])
-           .controller('ExampleController', ['$scope', function ($scope) {
+           .controller('ExampleController', ['$scope', function($scope) {
              $scope.salutation = 'Hello';
              $scope.name = 'World';
            }]);
@@ -118,14 +119,19 @@ var ngBindDirective = ngDirective({
      </file>
    </example>
  */
-var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
-  return function(scope, element, attr) {
-    // TODO: move this to scenario runner
-    var interpolateFn = $interpolate(element.attr(attr.$attr.ngBindTemplate));
-    element.addClass('ng-binding').data('$binding', interpolateFn);
-    attr.$observe('ngBindTemplate', function(value) {
-      element.text(value);
-    });
+var ngBindTemplateDirective = ['$interpolate', '$compile', function($interpolate, $compile) {
+  return {
+    compile: function ngBindTemplateCompile(templateElement) {
+      $compile.$$addBindingClass(templateElement);
+      return function ngBindTemplateLink(scope, element, attr) {
+        var interpolateFn = $interpolate(element.attr(attr.$attr.ngBindTemplate));
+        $compile.$$addBindingInfo(element, interpolateFn.expressions);
+        element = element[0];
+        attr.$observe('ngBindTemplate', function(value) {
+          element.textContent = value === undefined ? '' : value;
+        });
+      };
+    }
   };
 }];
 
@@ -135,13 +141,15 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
  * @name ngBindHtml
  *
  * @description
- * Creates a binding that will innerHTML the result of evaluating the `expression` into the current
- * element in a secure way.  By default, the innerHTML-ed content will be sanitized using the {@link
- * ngSanitize.$sanitize $sanitize} service.  To utilize this functionality, ensure that `$sanitize`
- * is available, for example, by including {@link ngSanitize} in your module's dependencies (not in
- * core Angular.)  You may also bypass sanitization for values you know are safe. To do so, bind to
+ * Evaluates the expression and inserts the resulting HTML into the element in a secure way. By default,
+ * the resulting HTML content will be sanitized using the {@link ngSanitize.$sanitize $sanitize} service.
+ * To utilize this functionality, ensure that `$sanitize` is available, for example, by including {@link
+ * ngSanitize} in your module's dependencies (not in core Angular). In order to use {@link ngSanitize}
+ * in your module's dependencies, you need to include "angular-sanitize.js" in your application.
+ *
+ * You may also bypass sanitization for values you know are safe. To do so, bind to
  * an explicitly trusted value via {@link ng.$sce#trustAsHtml $sce.trustAsHtml}.  See the example
- * under {@link ng.$sce#Example Strict Contextual Escaping (SCE)}.
+ * under {@link ng.$sce#show-me-an-example-using-sce- Strict Contextual Escaping (SCE)}.
  *
  * Note: If a `$sanitize` service is unavailable and the bound value isn't explicitly trusted, you
  * will have an exception (instead of an exploit.)
@@ -150,7 +158,6 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
  * @param {expression} ngBindHtml {@link guide/expression Expression} to evaluate.
  *
  * @example
-   Try it here: enter text in text box and watch the greeting change.
 
    <example module="bindHtmlExample" deps="angular-sanitize.js">
      <file name="index.html">
@@ -176,19 +183,25 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
      </file>
    </example>
  */
-var ngBindHtmlDirective = ['$sce', '$parse', function($sce, $parse) {
-  return function(scope, element, attr) {
-    element.addClass('ng-binding').data('$binding', attr.ngBindHtml);
+var ngBindHtmlDirective = ['$sce', '$parse', '$compile', function($sce, $parse, $compile) {
+  return {
+    restrict: 'A',
+    compile: function ngBindHtmlCompile(tElement, tAttrs) {
+      var ngBindHtmlGetter = $parse(tAttrs.ngBindHtml);
+      var ngBindHtmlWatch = $parse(tAttrs.ngBindHtml, function getStringValue(value) {
+        return (value || '').toString();
+      });
+      $compile.$$addBindingClass(tElement);
 
-    var parsed = $parse(attr.ngBindHtml);
-    var changeDetector = $parse(attr.ngBindHtml, function getStringValue(value) {
-          return (value || '').toString();
+      return function ngBindHtmlLink(scope, element, attr) {
+        $compile.$$addBindingInfo(element, attr.ngBindHtml);
+
+        scope.$watch(ngBindHtmlWatch, function ngBindHtmlWatchAction() {
+          // we re-evaluate the expr because we want a TrustedValueHolderType
+          // for $sce, not a string
+          element.html($sce.getTrustedHtml(ngBindHtmlGetter(scope)) || '');
         });
-
-    scope.$watch(changeDetector, function ngBindHtmlWatchAction() {
-      // we re-evaluate the expr because we want a TrustedValueHolderType
-      // for $sce, not a string
-      element.html($sce.getTrustedHtml(parsed(scope)) || '');
-    });
+      };
+    }
   };
 }];
